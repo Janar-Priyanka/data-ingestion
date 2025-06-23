@@ -21,16 +21,32 @@ This service is a Go-based application built with the Gin web framework. It prov
 - `cmd/server/utils`: Provides shared utility functions, such as query helpers, used across the service layer.
 
 ---
-
-## Stack
-
+## Prerequisite
 - Golang - Core language for the application backend.
 - Gin - High-performance HTTP web framework for Go.
 - TimescaleDb - PostgreSQL extension for time-series data, providing performance optimizations and lifecycle management.
 
+### Env Variables
+- DATABASE_URL = CONNECTION_STRING 
+    -   Example : `export DATABASE_URL=postgres://postgres:password@localhost:5432/postgres`
 
+### DB Table Creation
+- Excute the sql script in `/resources/01_CreateTable.sql` which will create an table with required feilds.
 ---
 
+## How to Run
+
+### 1. Script - Ingest data to DB 
+- Navigate to `cmd/script`
+- Execute `go run main.go`
+
+### 2. Server
+- Navigate to `cmd/server`
+- Execute `go run main.go`
+- Rest server will be available on port number: 8080 
+- Use Postman or REST Client to test
+
+---
 ##  API Endpoints
 
 #### **Get Data for the Last N Days**
@@ -138,3 +154,8 @@ This service is a Go-based application built with the Gin web framework. It prov
           "params": "cpu_load"
     }
 ```
+
+### Future Scope
+- Testing - Test case implemention using Mock.
+- Code Cleanup and Scope for Refactoring.
+- Isolate the the DB operation to seperate module, to support other databases.

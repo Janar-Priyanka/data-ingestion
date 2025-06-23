@@ -52,7 +52,7 @@ func GenerateData(pgInstance *pgx.Conn, ctx context.Context) []*Data {
 
 func main() {
 	ctx := context.Background()
-	conn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres")
+	conn, err := pgx.Connect(ctx, os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
