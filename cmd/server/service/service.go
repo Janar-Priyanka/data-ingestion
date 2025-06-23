@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -42,14 +41,15 @@ func (pg ServiceStruct) GetDayData(c *gin.Context) {
 		`
 	rows, err := pg.Db.Query(ctx, query, day)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed for Fetcing past Day Data : %v\n", err)
-		os.Exit(1)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing past Day Data"})
+		return
 	}
 
 	var result []db.Data
 	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
 	if err != nil {
-		fmt.Errorf("GetDay : Error in converting rows to struct")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
+		return
 	}
 
 	var responseData []models.Data
@@ -91,14 +91,15 @@ func (pg ServiceStruct) GetHoursData(c *gin.Context) {
 		`
 	rows, err := pg.Db.Query(ctx, query, hours)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed for Fetcing past Hour Data : %v\n", err)
-		os.Exit(1)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing past Hour Data"})
+		return
 	}
 
 	var result []db.Data
 	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
 	if err != nil {
-		fmt.Errorf("GetHourData : Error in converting rows to struct")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
+		return
 	}
 	var response models.GetDataResponseStruct
 	var responseData []models.Data
@@ -143,14 +144,15 @@ func (pg ServiceStruct) GetMinutesData(c *gin.Context) {
 		`
 	rows, err := pg.Db.Query(ctx, query, minute)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed for Fetcing past Minute Data : %v\n", err)
-		os.Exit(1)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing past Minute Data"})
+		return
 	}
 
 	var result []db.Data
 	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
 	if err != nil {
-		fmt.Errorf("GetMinuteData : Error in converting rows to struct")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
+		return
 	}
 	var response models.GetDataResponseStruct
 	var responseData []models.Data
@@ -195,14 +197,15 @@ func (pg ServiceStruct) GetSecondsData(c *gin.Context) {
 		`
 	rows, err := pg.Db.Query(ctx, query, second)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed for Fetcing past seconds Data : %v\n", err)
-		os.Exit(1)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing past seconds Data"})
+		return
 	}
 
 	var result []db.Data
 	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
 	if err != nil {
-		fmt.Errorf("GetSecondsData : Error in converting rows to struct")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
+		return
 	}
 	var response models.GetDataResponseStruct
 	var responseData []models.Data
@@ -250,14 +253,15 @@ func (pg ServiceStruct) GetDataByDate(c *gin.Context) {
 		`
 	rows, err := pg.Db.Query(ctx, query, startOfDay, endOfDay)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Query failed for Fetcing the given Date Data : %v\n", err)
-		os.Exit(1)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing the given Date Data"})
+		return
 	}
 
 	var result []db.Data
 	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
 	if err != nil {
-		fmt.Errorf("GetDataByDate : Error in converting rows to struct")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
+		return
 	}
 	var response models.GetDataResponseStruct
 	var responseData []models.Data
@@ -290,14 +294,6 @@ func (pg ServiceStruct) GetSpecificDataSet(c *gin.Context) {
 		})
 		return
 	}
-	if requestBody.StartTime.IsZero() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required field: starttime"})
-		return
-	}
-	if requestBody.EndTime.IsZero() {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required field: endtime"})
-		return
-	}
 	if !requestBody.StartTime.Before(requestBody.EndTime) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid time range: starttime must be before endtime"})
 		return
@@ -308,7 +304,7 @@ func (pg ServiceStruct) GetSpecificDataSet(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	if requestBody.OppCode != "" {
+	if requestBody.OpCode != "" {
 		res, err := utils.HandleAggregateQuery(pg.Db, c, ctx, requestBody, startTime, endTime)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{

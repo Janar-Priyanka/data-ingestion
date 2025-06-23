@@ -2,6 +2,7 @@ package models
 
 import (
 	"time"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -16,10 +17,9 @@ type GetDataResponseStruct struct {
 
 type GetSpecificDataSetRequest struct {
 	StartTime time.Time `json:"starttime" binding:"required"`
-	EndTime   time.Time `json:"endtime"`
-	TimeZone  time.Time `json:"timezone"`
-	OppCode   string    `json:"opcode"`
-	OppParam  string    `json:"params"`
+	EndTime   time.Time `json:"endtime" binding:"required"`
+	OpCode    string    `json:"opcode"`
+	Params    string    `json:"params"`
 }
 
 type GetSpecificDataSetAggResponse struct {
