@@ -2,81 +2,105 @@
 
 This service is a Go-based application built with the Gin web framework. It provides a set of RESTful API endpoints to ingest and query time-series data, specifically CPU load and concurrency metrics, stored in a PostgreSQL database.
 
-1. The primary functionalities include:
+**The primary functionalities include:**
 
-* Ingesting data sets for the past five minutes.
-* Querying data based on various time intervals (days, hours, minutes, seconds).
-* Retrieving data for a specific calendar date.
+- Ingesting data sets for the past five minutes.
+- Querying data based on various time intervals (days, hours, minutes, seconds).
+- Retrieving data for a specific calendar date.
 
-## 2. Prerequisites
+---
 
-Before you begin, ensure you have the following installed on your local machine:
 
-Go: Version 1.21 or later.
+##  Project Structure
 
-PostgreSQL: A running instance of PostgreSQL.
+- `cmd/server/main.go`: The main entry point for starting the backend API server.
+- `cmd/script/main.go`: Entry point for a standalone script that ingests data from the last five minutes into the database.
+- `cmd/server/service`: Implements the core business logic and handlers for the API endpoints.
+- `cmd/server/models`: Contains the Go struct definitions for API request and response bodies.
+- `cmd/server/db`: Contains the Go struct definitions that map directly to the database table schema.
+- `cmd/server/utils`: Provides shared utility functions, such as query helpers, used across the service layer.
 
-Git: For cloning the repository.
+---
 
-## 3. API Endpoints
+##  API Endpoints
 
 #### **Get Data for the Last N Days**
 
-* **Endpoint:** GET /days/:day
-* **Description:** Retrieves all data points from the last N days, where N is the specified day parameter.
-* **URL Params:**
-  * day=[integer] **(Required)**: The number of past days to fetch data for.
+- **Endpoint:** GET `/days/:day`
+- **Description:** Retrieves all data points from the last N days, where N is the specified day parameter.
+- **URL Params:**
+  - day=[integer] **(Required)**: The number of past days to fetch data for.
 
-* **Success Response (200 OK):**
-
-`{
-"data": [
+- **Success Response (200 OK):**
+```
 {
-"timestamp": 1719139800,
-"cpu_load": 50.5,
-"concurrency": 12345
-},
-{
-"timestamp": 1719136200,
-"cpu_load": 75.0,
-"concurrency": 54321
+    "data": [
+    
+        {
+        "timestamp": 1719139800,
+        "cpu_load": 50.5,
+        "concurrency": 12345
+        },
+        
+        {
+        "timestamp": 1719136200,
+        "cpu_load": 75.0,
+        "concurrency": 54321
+        }
+    ]
 }
-]
-}`
-
+```
 * **Error Response (400 Bad Request):**
- ` {
-  "error": "Invalid day parameter, must be an integer greater than zero"
-  }`
+  ```
+  {
+    "error": "Invalid day parameter, must be an integer greater than zero"
+  }
+  ```
+
+
+
+---
 
 
 #### Get Data for the Last N Hours
 
-* **Endpoint:** GET /hours/:hour
-* **Description:** Retrieves all data points from the last N hours.
-* **URL Params:**
+- **Endpoint:** GET `/hours/:hour`
+- **Description:** Retrieves all data points from the last N hours.
+- **URL Params:**
   * hour=[integer] (Required)
-* **Example Request:** GET /hours/12
+- **Example Request:** GET /hours/12
+
+
+---
+
 
 #### Get Data for the Last N Seconds
 
-* **Endpoint:** GET /seconds/:second
+* **Endpoint:** GET `/seconds/:second`
 * **Description:** Retrieves all data points from the last N seconds.
 * **URL Params:**
   * second=[integer] (Required)
 * **Example Request:** GET /seconds/45
 
+
+---
+
+
 #### Get Data by Specific Date
 
-* **Endpoint:** GET /date/:date
+* **Endpoint:** GET `/date/:date`
 * **Description:** Retrieves all data points for a specific calendar date.
 * **URL Params:**
   * date=[string] (Required): The date in DD-MM-YYYY format.
 * **Example Request:** GET /date/23-06-2025
 
+
+---
+
+
 #### Get Specific or Aggregated Data Set
 
-* **Endpoint:** POST /getData
+* **Endpoint:** POST `/getData`
 * **Description:** This endpoint has dual functionality. It can either fetch raw data points within a specific time range or perform an aggregate calculation (avg, min, max) on a specified data field (cpu_load or concurrency) within that range.
 * **Request Body:**
 
@@ -87,17 +111,21 @@ Git: For cloning the repository.
 
 
 * **Example Request (Raw Data):**
- ` {
-  "starttime": "2025-06-23T00:00:00Z",
-  "endtime": "2025-06-23T23:59:59Z"
-  }`
+  ```
+  {
+      "starttime": "2025-06-23T00:00:00Z",
+      "endtime": "2025-06-23T23:59:59Z"
+  }
+  ```
 
 
 
 * **Example Request (Aggregated Data):**
- ` {
-  "starttime": "2025-06-23T00:00:00Z",
-  "endtime": "2025-06-23T23:59:59Z",
-  "opcode": "avg",
-  "params": "cpu_load"
-  }`
+  ```
+      {
+          "starttime": "2025-06-23T00:00:00Z",
+          "endtime": "2025-06-23T23:59:59Z",
+          "opcode": "avg",
+          "params": "cpu_load"
+      }
+ ```
