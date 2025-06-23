@@ -22,6 +22,15 @@ This service is a Go-based application built with the Gin web framework. It prov
 
 ---
 
+## Stack
+
+- Golang - Core language for the application backend.
+- Gin - High-performance HTTP web framework for Go.
+- TimescaleDb - PostgreSQL extension for time-series data, providing performance optimizations and lifecycle management.
+
+
+---
+
 ##  API Endpoints
 
 #### **Get Data for the Last N Days**
@@ -121,11 +130,11 @@ This service is a Go-based application built with the Gin web framework. It prov
 
 
 * **Example Request (Aggregated Data):**
-  ```
-      {
+ ```
+    {
           "starttime": "2025-06-23T00:00:00Z",
           "endtime": "2025-06-23T23:59:59Z",
           "opcode": "avg",
           "params": "cpu_load"
-      }
- ```
+    }
+```
