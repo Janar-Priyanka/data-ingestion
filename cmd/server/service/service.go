@@ -33,24 +33,7 @@ func (pg ServiceStruct) GetDayData(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	query := `
-        SELECT timestamp, cpu_load, concurrency 
-        FROM comcast 
-        WHERE timestamp >= NOW() - ($1 * INTERVAL '1 day')
-        ORDER BY timestamp DESC
-		`
-	rows, err := pg.Db.Query(ctx, query, day)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing past Day Data"})
-		return
-	}
-
-	var result []db.Data
-	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
-		return
-	}
+	result := db.GetDayData_Db(c, ctx, day, pg.Db)
 
 	var responseData []models.Data
 	for _, val := range result {
@@ -83,24 +66,8 @@ func (pg ServiceStruct) GetHoursData(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	query := `
-        SELECT timestamp, cpu_load, concurrency 
-        FROM comcast 
-        WHERE timestamp >= NOW() - ($1 * INTERVAL '1 hour')
-        ORDER BY timestamp DESC
-		`
-	rows, err := pg.Db.Query(ctx, query, hours)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Query failed for Fetcing past Hour Data"})
-		return
-	}
+	result := db.GetHoursData_Db(c, ctx, hours, pg.Db)
 
-	var result []db.Data
-	result, err = pgx.CollectRows(rows, pgx.RowToStructByPos[db.Data])
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Error in converting rows to struct"})
-		return
-	}
 	var response models.GetDataResponseStruct
 	var responseData []models.Data
 	if len(result) == 0 {
@@ -301,7 +268,8 @@ func (pg ServiceStruct) GetSpecificDataSet(c *gin.Context) {
 
 	startTime := requestBody.StartTime.UTC()
 	endTime := requestBody.EndTime.UTC()
-
+	fmt.Println(" start UTC : ", startTime)
+	fmt.Println(" end UTC : ", endTime)
 	ctx := c.Request.Context()
 
 	if requestBody.OpCode != "" {
